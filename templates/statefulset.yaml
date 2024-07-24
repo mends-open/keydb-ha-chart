@@ -27,7 +27,7 @@ spec:
           args:
             - "keydb-server"
             - "/etc/keydb/keydb.conf"
-            {{- if gt .Values.replicaCount 1 }}
+            {{- if gt (int .Values.replicaCount) 1 }}
             {{- range $i, $e := until (int .Values.replicaCount) }}
             {{- if gt $i 0 }}
             - "--replicaof"
@@ -36,6 +36,8 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+          resources:
+            {{ toYaml .Values.resources | indent 12 }}
       volumes:
         - name: config-volume
           configMap:
