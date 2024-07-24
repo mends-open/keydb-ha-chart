@@ -35,8 +35,6 @@ spec:
             - "keydb-server"
             - "/etc/keydb/keydb.conf"
             {{ include "keydb.replicaofArgs" . }}
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
       volumes:
         - name: config-volume
           configMap:

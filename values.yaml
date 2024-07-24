@@ -16,14 +16,6 @@ persistence:
     - ReadWriteOnce
   size: 100Mi
 
-resources:
-  limits:
-    cpu: 0.25
-    memory: 256Mi
-  requests:
-    cpu: 0.125
-    memory: 64Mi
-
 config: |
   active-replica yes
   multi-master no
