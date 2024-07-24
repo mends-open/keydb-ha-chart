@@ -34,7 +34,7 @@ spec:
           args:
             - "keydb-server"
             - "/etc/keydb/keydb.conf"
-            {{ include "keydb.replicaofArgs" . }}
+            {{ include "keydb.replicaofArgs" . | indent 12 }}
       volumes:
         - name: config-volume
           configMap:
