@@ -14,7 +14,7 @@ spec:
         app: keydb-replica
     spec:
       containers:
-        - name: keydb
+        - name: keydb-replica
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: 6379
@@ -32,11 +32,6 @@ spec:
           args:
             - "keydb-server"
             - "/etc/keydb/keydb.conf"
-            {{- if gt (int .Values.replicaCount) 1 }}
-            - "--replicaof"
-            - "{{ printf "keydb-replicas-%d" (int (splitList "-" .Values.podName | last)) - 1 }}"
-            - "6379"
-            {{- end }}
       volumes:
         - name: config-volume
           configMap:
