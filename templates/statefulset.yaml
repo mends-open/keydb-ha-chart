@@ -33,16 +33,10 @@ spec:
             - "keydb-server"
             - "/etc/keydb/keydb.conf"
             {{- if gt (int .Values.replicaCount) 1 }}
-            {{- range $i, $e := until (int .Values.replicaCount) }}
-            {{- if gt $i 0 }}
             - "--replicaof"
-            - "{{ printf "%s-%d" (include "keydb.fullname" $) (modulo (add $i 1) (int .Values.replicaCount)) }}"
+            - "{{ printf "keydb-replicas-%d" (int (splitList "-" .Values.podName | last)) - 1 }}"
             - "6379"
             {{- end }}
-            {{- end }}
-            {{- end }}
-          resources:
-            {{ toYaml .Values.resources | indent 12 }}
       volumes:
         - name: config-volume
           configMap:
