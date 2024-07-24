@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: keydb-configmap
 data:
-  keydb.conf: |-
+  keydb.conf: |
     {{ .Values.config | nindent 4 }}
