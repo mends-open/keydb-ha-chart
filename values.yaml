@@ -1,7 +1,5 @@
 replicaCount: 3
 
-nameOverride: ""
-
 image:
   repository: eqalpha/keydb
   tag: "alpine_x86_64_v6.3.4"
@@ -16,9 +14,15 @@ persistence:
   storageClass: ""
   accessModes:
     - ReadWriteOnce
-  size: 1Gi #lower to 100 mi
-# add default resource constraint - 0.25 cpu and 256 mb maximum, minimum 0.125 cpu, 64 mb ram
-resources: {}
+  size: 100Mi
+
+resources:
+  limits:
+    cpu: 0.25
+    memory: 256Mi
+  requests:
+    cpu: 0.125
+    memory: 64Mi
 
 config: |
   active-replica yes
