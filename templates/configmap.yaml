@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keydb-configmap
+data:
+  keydb.conf: |-
+    {{ .Values.config | nindent 4 }}

@@ -1,0 +1,27 @@
+replicaCount: 3
+
+nameOverride: ""
+
+image:
+  repository: eqalpha/keydb
+  tag: "alpine_x86_64_v6.3.4"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 6379
+
+persistence:
+  enabled: true
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 1Gi #lower to 100 mi
+# add default resource constraint - 0.25 cpu and 256 mb maximum, minimum 0.125 cpu, 64 mb ram
+resources: {}
+
+config: |
+  active-replica yes
+  multi-master no
+  maxmemory 200mb
+  maxmemory-policy allkeys-lru
