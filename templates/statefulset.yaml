@@ -31,12 +31,13 @@ spec:
         - name: config-volume
           configMap:
             name: keydb-configmap
-    volumeClaimTemplates:
+  volumeClaimTemplates:
     - metadata:
         name: keydb-storage
-        spec:
-        accessModes: {{ .Values.persistence.accessModes }}
+      spec:
+        accessModes: 
+          {{ .Values.persistence.accessModes | toYaml | indent 8 }}
         storageClassName: {{ .Values.persistence.storageClass | quote }}
         resources:
-            requests:
+          requests:
             storage: {{ .Values.persistence.size }}
