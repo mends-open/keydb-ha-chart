@@ -4,7 +4,7 @@ metadata:
   name: keydb-replicas
 spec:
   serviceName: keydb-service
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount | int }}
   selector:
     matchLabels:
       app: keydb-replica

@@ -7,7 +7,7 @@
 {{- end -}}
 
 {{- define "keydb.replicaofArgs" -}}
-{{- range $i, $e := until .Values.replicaCount }}
+{{- range $i, $e := until (int .Values.replicaCount) }}
 {{- if gt $i 0 }}
 --replicaof {{ printf "%s-%d.%s.%s" (include "keydb.fullname" $) $i (include "keydb.fullname" $) .Release.Namespace }} 6379 
 {{- end }}
