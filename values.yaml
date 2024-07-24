@@ -11,7 +11,7 @@ service:
 
 persistence:
   enabled: true
-  storageClass: ""
+  storageClass: "longhorn"
   accessModes:
     - ReadWriteOnce
   size: 100Mi
