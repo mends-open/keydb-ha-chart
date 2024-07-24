@@ -24,6 +24,11 @@ spec:
             - name: config-volume
               mountPath: /etc/keydb/keydb.conf
               subPath: keydb.conf
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           args:
             - "keydb-server"
             - "/etc/keydb/keydb.conf"
@@ -31,7 +36,7 @@ spec:
             {{- range $i, $e := until (int .Values.replicaCount) }}
             {{- if gt $i 0 }}
             - "--replicaof"
-            - "{{ printf "%s-%d.%s.svc.cluster.local" (include "keydb.fullname" $) $i $.Release.Namespace }}"
+            - "{{ printf "%s-%d" (include "keydb.fullname" $) (modulo (add $i 1) (int .Values.replicaCount)) }}"
             - "6379"
             {{- end }}
             {{- end }}
