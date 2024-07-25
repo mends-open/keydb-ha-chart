@@ -1,5 +1,3 @@
-replicaCount: 3
-
 image:
   repository: eqalpha/keydb
   tag: "alpine_x86_64_v6.3.4"
@@ -16,8 +14,25 @@ persistence:
     - ReadWriteOnce
   size: 100Mi
 
-config: |
-  active-replica yes
-  multi-master no
-  maxmemory 200mb
-  maxmemory-policy allkeys-lru
+configs:
+  - |
+    active-replica yes
+    multi-master no
+    maxmemory 200mb
+    maxmemory-policy allkeys-lru
+    replicaof keydb-replica-1
+    replicaof keydb-replica-2
+  - |
+    active-replica yes
+    multi-master no
+    maxmemory 200mb
+    maxmemory-policy allkeys-lru
+    replicaof keydb-replica-0
+    replicaof keydb-replica-2
+  - |
+    active-replica yes
+    multi-master no
+    maxmemory 200mb
+    maxmemory-policy allkeys-lru
+    replicaof keydb-replica-1
+    replicaof keydb-replica-0

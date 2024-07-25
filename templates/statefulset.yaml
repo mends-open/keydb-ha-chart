@@ -1,69 +1,59 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: keydb-replica
+  name: keydb
   labels:
-    app: keydb-replica
+    app: keydb
 spec:
-  serviceName: keydb-service
-  replicas: {{ .Values.replicaCount | int }}
+  serviceName: keydb
+  replicas: {{ .Values.configs | len }}
   selector:
     matchLabels:
-      app: keydb-replica
+      app: keydb
   template:
     metadata:
       labels:
-        app: keydb-replica
+        app: keydb
     spec:
       initContainers:
-        - name: setup-replication
+        - name: setup-config
           image: busybox
-          command:
-            - /bin/sh
-            - -c
+          command: ["/bin/sh", "-c"]
           args:
             - |
-              echo "Starting replication setup" > /tmp/debug.log
               POD_NAME=$(hostname)
-              FULL_NAME="keydb-replica-${POD_NAME##*-}"
-              echo "Pod name: $POD_NAME, Full name: $FULL_NAME" >> /tmp/debug.log
-              ALL_REPLICAS=$(for i in $(seq 0 $(( {{ .Values.replicaCount }} - 1 )) ); do if [ "$FULL_NAME" != "keydb-replica-$i" ]; then echo "replicaof keydb-replica-$i 6379"; fi; done)
-              echo "All replicas: $ALL_REPLICAS" >> /tmp/debug.log
-              echo $ALL_REPLICAS >> /etc/keydb/keydb.conf
-              echo "Contents of keydb.conf:" >> /tmp/debug.log
-              cat /etc/keydb/keydb.conf >> /tmp/debug.log
-              cat /tmp/debug.log
+              POD_INDEX=$(echo $POD_NAME | awk -F "-" '{print $NF}')
+              CONFIG_DIR="/etc/keydb/configs"
+              mkdir -p $CONFIG_DIR
+              echo "${CONFIGS[$POD_INDEX]}" > $CONFIG_DIR/keydb.conf
+          env:
+            - name: CONFIGS
+              value: |
+                {{- range .Values.configs }}
+                {{ . | nindent 16 }}
+                {{- end }}
           volumeMounts:
             - name: config-volume
-              mountPath: /etc/keydb
-            - name: debug-volume
-              mountPath: /tmp
+              mountPath: /etc/keydb/configs
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["keydb-server", "/etc/keydb/configs/keydb.conf"]
           ports:
             - containerPort: 6379
           volumeMounts:
-            - name: keydb-storage
-              mountPath: /data
             - name: config-volume
-              mountPath: /etc/keydb
-            - name: debug-volume
-              mountPath: /tmp
-          args:
-            - "keydb-server"
-            - "/etc/keydb/keydb.conf"
+              mountPath: /etc/keydb/configs
+            - name: data
+              mountPath: /data
       volumes:
         - name: config-volume
-          configMap:
-            name: keydb-configmap
-        - name: keydb-storage
           emptyDir: {}
-        - name: debug-volume
+        - name: data
           emptyDir: {}
   volumeClaimTemplates:
     - metadata:
-        name: keydb-storage
+        name: data
       spec:
         accessModes: 
           {{ .Values.persistence.accessModes | toYaml | indent 8 }}
