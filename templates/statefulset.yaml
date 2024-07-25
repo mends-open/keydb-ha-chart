@@ -26,11 +26,11 @@ spec:
               echo "Starting replication setup"
               POD_NAME=$(hostname)
               FULL_NAME="keydb-replica-${POD_NAME##*-}"
-              ALL_REPLICAS=$(for i in $(seq 0 $(( {{ .Values.replicaCount }} - 1 )) ); do if [ "$FULL_NAME" != "keydb-replica-$i" ]; then echo "keydb-replica-$i 6379"; fi; done)
-              echo $ALL_REPLICAS > /replicas/replica-hosts
+              ALL_REPLICAS=$(for i in $(seq 0 $(( {{ .Values.replicaCount }} - 1 )) ); do if [ "$FULL_NAME" != "keydb-replica-$i" ]; then echo "replicaof keydb-replica-$i 6379"; fi; done)
+              echo $ALL_REPLICAS >> /etc/keydb/keydb.conf
           volumeMounts:
-            - name: replicas
-              mountPath: /replicas
+            - name: config-volume
+              mountPath: /etc/keydb
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -40,25 +40,15 @@ spec:
             - name: keydb-storage
               mountPath: /data
             - name: config-volume
-              mountPath: /etc/keydb/keydb.conf
-              subPath: keydb.conf
-            - name: replicas
-              mountPath: /replicas
+              mountPath: /etc/keydb
           args:
-            - "sh"
-            - "-c"
-            - |
-              keydb-server /etc/keydb/keydb.conf &
-              sleep 10
-              for host in $(cat /replicas/replica-hosts); do
-                keydb-cli --replicaof $(echo $host | awk '{print $1}') $(echo $host | awk '{print $2}')
-              done
-              wait
+            - "keydb-server"
+            - "/etc/keydb/keydb.conf"
       volumes:
         - name: config-volume
           configMap:
             name: keydb-configmap
-        - name: replicas
+        - name: keydb-storage
           emptyDir: {}
   volumeClaimTemplates:
     - metadata:
