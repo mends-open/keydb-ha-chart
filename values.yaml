@@ -20,19 +20,19 @@ configs:
     multi-master no
     maxmemory 200mb
     maxmemory-policy allkeys-lru
-    replicaof keydb-replica-1
-    replicaof keydb-replica-2
+    replicaof keydb-1
+    replicaof keydb-2
   - |
     active-replica yes
     multi-master no
     maxmemory 200mb
     maxmemory-policy allkeys-lru
-    replicaof keydb-replica-0
-    replicaof keydb-replica-2
+    replicaof keydb-0
+    replicaof keydb-2
   - |
     active-replica yes
     multi-master no
     maxmemory 200mb
     maxmemory-policy allkeys-lru
-    replicaof keydb-replica-1
-    replicaof keydb-replica-0
+    replicaof keydb-1
+    replicaof keydb-0

@@ -29,7 +29,7 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: keydb-config-{{ .metadata.name | regexReplaceAllLiteral "keydb-" "" }}
+            name: keydb-config-{{ .metadata.name }}-{{ .metadata.namespace }}-$(POD_NAME)
         - name: data
           emptyDir: {}
   volumeClaimTemplates:
