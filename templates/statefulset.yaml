@@ -51,7 +51,7 @@ spec:
               keydb-server /etc/keydb/keydb.conf &
               sleep 10
               for host in $(cat /replicas/replica-hosts); do
-                keydb-cli --replicaof $host
+                keydb-cli --replicaof $(echo $host | awk '{print $1}') $(echo $host | awk '{print $2}')
               done
               wait
       volumes:
