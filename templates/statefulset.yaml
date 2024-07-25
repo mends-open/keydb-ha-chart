@@ -1,58 +1,40 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: keydb
+  name: {{ include "keydb.fullname" . }}
   labels:
-    app: keydb
+    {{- include "keydb.labels" . | nindent 4 }}
 spec:
-  serviceName: keydb
-  replicas: {{ .Values.replicas | len }}
+  serviceName: {{ include "keydb.fullname" . }}
+  replicas: {{ .Values.nodes }}
   selector:
     matchLabels:
-      app: keydb
+      app: {{ include "keydb.name" . }}
   template:
     metadata:
       labels:
-        app: keydb
+        app: {{ include "keydb.name" . }}
     spec:
-      initContainers:
-        - name: setup-replication
-          image: busybox
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              POD_NAME=$(hostname)
-              POD_INDEX=$(echo $POD_NAME | awk -F "-" '{print $NF}')
-              REPLICATION_CONFIG="/etc/keydb/keydb-replica.conf"
-              echo "replication for $POD_NAME" > $REPLICATION_CONFIG
-              {{- range $index, $replica := .Values.replicas }}
-              if [ "$POD_INDEX" -eq "{{ $index }}" ]; then
-                {{- range $replica }}
-                echo "replicaof {{ . }}" >> $REPLICATION_CONFIG
-                {{- end }}
-              fi
-              {{- end }}
-              cat /etc/keydb/keydb.conf /etc/keydb/keydb-replica.conf > /etc/keydb/final-keydb.conf
-          volumeMounts:
-            - name: config-volume
-              mountPath: /etc/keydb
-            - name: data
-              mountPath: /data
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          command: ["keydb-server", "/etc/keydb/final-keydb.conf"]
+          command: ["/bin/bash", "/etc/keydb-utils/server.sh"]
           ports:
-            - containerPort: 6379
+            - containerPort: {{ .Values.service.port }}
           volumeMounts:
-            - name: config-volume
+            - name: config
               mountPath: /etc/keydb
+            - name: utils
+              mountPath: /etc/keydb-utils
             - name: data
               mountPath: /data
       volumes:
-        - name: config-volume
+        - name: config
           configMap:
-            name: keydb-config
+            name: {{ include "keydb.fullname" . }}
+        - name: utils
+          secret:
+            secretName: {{ include "keydb.fullname" . }}-utils
         - name: data
           emptyDir: {}
   volumeClaimTemplates:
@@ -60,7 +42,7 @@ spec:
         name: data
       spec:
         accessModes:
-          - ReadWriteOnce
+          - {{ .Values.persistence.accessModes }}
         storageClassName: {{ .Values.persistence.storageClass }}
         resources:
           requests:

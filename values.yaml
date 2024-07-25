@@ -19,11 +19,10 @@ config: |
   multi-master no
   maxmemory 200mb
   maxmemory-policy allkeys-lru
-
-replicas:
-  - keydb-1 6379
-    keydb-2 6379
-  - keydb-0 6379
-    keydb-2 6379
-  - keydb-1 6379
-    keydb-0 6379
+  appendonly yes
+  bind 0.0.0.0
+  port 6379
+  protected-mode no
+nodes: 3
+fullnameOverride: ""
+nameOverride: ""
