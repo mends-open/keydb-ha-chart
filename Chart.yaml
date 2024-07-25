@@ -1,5 +1,5 @@
 apiVersion: v2
 name: keydb-ha-chart
 description: A Helm chart for KeyDB with HA
-version: 0.0.32
+version: 0.0.33
 appVersion: "alpine_x86_64_v6.3.4"
