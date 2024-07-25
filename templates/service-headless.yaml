@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "keydb.fullname" . }}-headless
+  name: {{ include ".Release.Name" . }}-headless
   labels:
     {{- include "keydb.labels" . | nindent 4 }}
 spec:
   clusterIP: None
   selector:
-    app: {{ include "keydb.name" . }}
+    app: {{ include ".Release.Name" . }}
   ports:
     - name: keydb
       port: {{ .Values.service.port }}

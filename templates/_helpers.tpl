@@ -1,15 +1,3 @@
-{{- define "keydb.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{- define "keydb.fullname" -}}
-{{- if .Values.fullnameOverride -}}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s" (include "keydb.name" .) .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-
 {{- define "keydb.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version -}}
 {{- end -}}
@@ -24,6 +12,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{- define "keydb.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "keydb.name" . }}
+app.kubernetes.io/name: {{ include ".Release.Name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}

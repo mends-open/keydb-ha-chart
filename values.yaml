@@ -23,6 +23,3 @@ config: |
   protected-mode no
 
 nodes: 3
-
-fullnameOverride: ""
-nameOverride: ""

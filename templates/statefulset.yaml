@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "keydb.fullname" . }}
+  name: {{ include ".Release.Name" . }}
   labels:
     {{- include "keydb.labels" . | nindent 4 }}
 spec:
-  serviceName: {{ include "keydb.fullname" . }}-headless
+  serviceName: {{ include ".Release.Name" . }}-headless
   replicas: {{ .Values.nodes }}
   selector:
     matchLabels:
-      app: {{ include "keydb.name" . }}
+      app: {{ include ".Release.Name" . }}
   template:
     metadata:
       labels:
-        app: {{ include "keydb.name" . }}
+        app: {{ include ".Release.Name" . }}
     spec:
       containers:
         - name: keydb
@@ -23,13 +23,14 @@ spec:
             - containerPort: {{ .Values.service.port }}
           volumeMounts:
             - name: utils
-              mountPath: /etc/keydb-utils
+              mountPath: /utils
+              readOnly: true
             - name: data
               mountPath: /data
       volumes:
         - name: utils
           secret:
-            secretName: {{ include "keydb.fullname" . }}-utils
+            secretName: {{ include ".Release.Name" . }}-utils
         - name: data
           emptyDir: {}
   volumeClaimTemplates:
