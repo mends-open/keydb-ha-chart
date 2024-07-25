@@ -23,17 +23,21 @@ spec:
             - -c
           args:
             - |
-              echo "Starting replication setup"
+              echo "Starting replication setup" > /tmp/debug.log
               POD_NAME=$(hostname)
               FULL_NAME="keydb-replica-${POD_NAME##*-}"
-              echo "Pod name: $POD_NAME, Full name: $FULL_NAME"
+              echo "Pod name: $POD_NAME, Full name: $FULL_NAME" >> /tmp/debug.log
               ALL_REPLICAS=$(for i in $(seq 0 $(( {{ .Values.replicaCount }} - 1 )) ); do if [ "$FULL_NAME" != "keydb-replica-$i" ]; then echo "replicaof keydb-replica-$i 6379"; fi; done)
-              echo "All replicas: $ALL_REPLICAS"
+              echo "All replicas: $ALL_REPLICAS" >> /tmp/debug.log
               echo $ALL_REPLICAS >> /etc/keydb/keydb.conf
-              cat /etc/keydb/keydb.conf
+              echo "Contents of keydb.conf:" >> /tmp/debug.log
+              cat /etc/keydb/keydb.conf >> /tmp/debug.log
+              cat /tmp/debug.log
           volumeMounts:
             - name: config-volume
               mountPath: /etc/keydb
+            - name: debug-volume
+              mountPath: /tmp
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -44,6 +48,8 @@ spec:
               mountPath: /data
             - name: config-volume
               mountPath: /etc/keydb
+            - name: debug-volume
+              mountPath: /tmp
           args:
             - "keydb-server"
             - "/etc/keydb/keydb.conf"
@@ -52,6 +58,8 @@ spec:
           configMap:
             name: keydb-configmap
         - name: keydb-storage
+          emptyDir: {}
+        - name: debug-volume
           emptyDir: {}
   volumeClaimTemplates:
     - metadata:
