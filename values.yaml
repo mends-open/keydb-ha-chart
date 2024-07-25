@@ -4,12 +4,11 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
   port: 6379
 
 persistence:
   enabled: true
-  storageClass: "longhorn"
+  storageClass: 
   accessModes: ReadWriteOnce
   size: 100Mi
 
@@ -22,4 +21,12 @@ config: |
   port 6379
   protected-mode no
 
-nodes: 3
+replicas: 3
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "64Mi"
+  limits:
+    cpu: "250m"
+    memory: "256Mi"
