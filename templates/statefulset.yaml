@@ -27,11 +27,9 @@ spec:
             - name: data
               mountPath: /data
       volumes:
-        {{- range $index, $config := .Values.configs }}
-        - name: config-volume-{{ $index }}
+        - name: config-volume
           configMap:
-            name: keydb-config-{{ $index }}
-        {{- end }}
+            name: keydb-config-{{ .metadata.name | regexReplaceAllLiteral "keydb-" "" }}
         - name: data
           emptyDir: {}
   volumeClaimTemplates:
