@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "keydb.labels" . | nindent 4 }}
 spec:
-  serviceName: {{ include "keydb.fullname" . }}
+  serviceName: {{ include "keydb.fullname" . }}-headless
   replicas: {{ .Values.nodes }}
   selector:
     matchLabels:
@@ -22,15 +22,11 @@ spec:
           ports:
             - containerPort: {{ .Values.service.port }}
           volumeMounts:
-            - name: config
-              mountPath: /etc/keydb
             - name: utils
               mountPath: /etc/keydb-utils
             - name: data
               mountPath: /data
       volumes:
-        - name: config
-          emptyDir: {}
         - name: utils
           secret:
             secretName: {{ include "keydb.fullname" . }}-utils
