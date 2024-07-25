@@ -26,8 +26,11 @@ spec:
               echo "Starting replication setup"
               POD_NAME=$(hostname)
               FULL_NAME="keydb-replica-${POD_NAME##*-}"
+              echo "Pod name: $POD_NAME, Full name: $FULL_NAME"
               ALL_REPLICAS=$(for i in $(seq 0 $(( {{ .Values.replicaCount }} - 1 )) ); do if [ "$FULL_NAME" != "keydb-replica-$i" ]; then echo "replicaof keydb-replica-$i 6379"; fi; done)
+              echo "All replicas: $ALL_REPLICAS"
               echo $ALL_REPLICAS >> /etc/keydb/keydb.conf
+              cat /etc/keydb/keydb.conf
           volumeMounts:
             - name: config-volume
               mountPath: /etc/keydb
