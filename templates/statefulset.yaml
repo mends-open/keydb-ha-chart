@@ -15,40 +15,23 @@ spec:
       labels:
         app: keydb
     spec:
-      initContainers:
-        - name: setup-config
-          image: busybox
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              POD_NAME=$(hostname)
-              POD_INDEX=$(echo $POD_NAME | awk -F "-" '{print $NF}')
-              CONFIG_DIR="/etc/keydb/configs"
-              mkdir -p $CONFIG_DIR
-              echo "${CONFIGS[$POD_INDEX]}" > $CONFIG_DIR/keydb.conf
-          env:
-            - name: CONFIGS
-              value: |
-                {{- range .Values.configs }}
-                {{ . | nindent 16 }}
-                {{- end }}
-          volumeMounts:
-            - name: config-volume
-              mountPath: /etc/keydb/configs
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          command: ["keydb-server", "/etc/keydb/configs/keydb.conf"]
+          command: ["keydb-server", "/etc/keydb/keydb.conf"]
           ports:
             - containerPort: 6379
           volumeMounts:
             - name: config-volume
-              mountPath: /etc/keydb/configs
+              mountPath: /etc/keydb
             - name: data
               mountPath: /data
       volumes:
-        - name: config-volume
-          emptyDir: {}
+        {{- range $index, $config := .Values.configs }}
+        - name: config-volume-{{ $index }}
+          configMap:
+            name: keydb-config-{{ $index }}
+        {{- end }}
         - name: data
           emptyDir: {}
   volumeClaimTemplates:
@@ -56,8 +39,8 @@ spec:
         name: data
       spec:
         accessModes: 
-          {{ .Values.persistence.accessModes | toYaml | indent 8 }}
-        storageClassName: {{ .Values.persistence.storageClass | quote }}
+          - ReadWriteOnce
+        storageClassName: {{ .Values.persistence.storageClass }}
         resources:
           requests:
             storage: {{ .Values.persistence.size }}
