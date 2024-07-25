@@ -6,4 +6,5 @@ metadata:
 data:
   keydb.conf: |
 {{ $config | indent 4 }}
+---
 {{- end }}
