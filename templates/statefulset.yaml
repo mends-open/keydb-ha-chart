@@ -29,14 +29,14 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: keydb-config-{{ .metadata.name }}-{{ .metadata.namespace }}-$(POD_NAME)
+            name: keydb-config-{{ $index }}
         - name: data
           emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: data
       spec:
-        accessModes: 
+        accessModes:
           - ReadWriteOnce
         storageClassName: {{ .Values.persistence.storageClass }}
         resources:
