@@ -10,8 +10,7 @@ service:
 persistence:
   enabled: true
   storageClass: "longhorn"
-  accessModes:
-    - ReadWriteOnce
+  accessModes: ReadWriteOnce
   size: 100Mi
 
 config: |
@@ -23,6 +22,9 @@ config: |
   bind 0.0.0.0
   port 6379
   protected-mode no
+  server-threads 4
+
 nodes: 3
+
 fullnameOverride: ""
 nameOverride: ""

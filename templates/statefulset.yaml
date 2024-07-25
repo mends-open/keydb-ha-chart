@@ -29,6 +29,9 @@ spec:
             - name: data
               mountPath: /data
       volumes:
+        - name: config
+          configMap:
+            name: {{ include "keydb.fullname" . }}
         - name: utils
           secret:
             secretName: {{ include "keydb.fullname" . }}-utils
