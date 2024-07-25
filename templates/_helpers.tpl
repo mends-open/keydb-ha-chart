@@ -15,3 +15,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/name: {{ .Release.Name }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
+
+{{- define "keydb.config.hash" -}}
+{{- sha256sum .Values.config | truncate 63 | trimSuffix "\n" -}}
+{{- end -}}
