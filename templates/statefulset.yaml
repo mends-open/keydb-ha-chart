@@ -15,6 +15,20 @@ spec:
       labels:
         app: keydb
     spec:
+      initContainers:
+        - name: setup-config
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              POD_NAME=$(hostname)
+              POD_INDEX=$(echo $POD_NAME | awk -F "-" '{print $NF}')
+              cp /etc/keydb/config/keydb-config-${POD_INDEX}.conf /etc/keydb/keydb.conf
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/keydb/config
+            - name: data
+              mountPath: /data
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -28,8 +42,15 @@ spec:
               mountPath: /data
       volumes:
         - name: config-volume
-          configMap:
-            name: keydb-config-{{ $index }}
+          projected:
+            sources:
+              {{- range $index, $config := .Values.configs }}
+              - configMap:
+                  name: keydb-config-{{ $index }}
+                  items:
+                    - key: keydb.conf
+                      path: keydb-config-{{ $index }}.conf
+              {{- end }}
         - name: data
           emptyDir: {}
   volumeClaimTemplates:
