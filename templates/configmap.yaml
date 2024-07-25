@@ -1,10 +1,7 @@
-{{- range $index, $config := .Values.configs }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: keydb-config-{{ $index }}
+  name: keydb-config
 data:
   keydb.conf: |
-{{ $config | indent 4 }}
----
-{{- end }}
+    {{ .Values.config | indent 4 }}

@@ -14,25 +14,16 @@ persistence:
     - ReadWriteOnce
   size: 100Mi
 
-configs:
-  - |
-    active-replica yes
-    multi-master no
-    maxmemory 200mb
-    maxmemory-policy allkeys-lru
-    replicaof keydb-replica-1
-    replicaof keydb-replica-2
-  - |
-    active-replica yes
-    multi-master no
-    maxmemory 200mb
-    maxmemory-policy allkeys-lru
-    replicaof keydb-replica-0
-    replicaof keydb-replica-2
-  - |
-    active-replica yes
-    multi-master no
-    maxmemory 200mb
-    maxmemory-policy allkeys-lru
-    replicaof keydb-replica-1
-    replicaof keydb-replica-0
+config: |
+  active-replica yes
+  multi-master no
+  maxmemory 200mb
+  maxmemory-policy allkeys-lru
+
+replicas:
+  - keydb-1 6379
+    keydb-2 6379
+  - keydb-0 6379
+    keydb-2 6379
+  - keydb-1 6379
+    keydb-0 6379

@@ -6,7 +6,7 @@ metadata:
     app: keydb
 spec:
   serviceName: keydb
-  replicas: {{ .Values.configs | len }}
+  replicas: {{ .Values.replicas | len }}
   selector:
     matchLabels:
       app: keydb
@@ -16,21 +16,32 @@ spec:
         app: keydb
     spec:
       initContainers:
-        - name: setup-config
+        - name: setup-replication
           image: busybox
           command: ["/bin/sh", "-c"]
           args:
             - |
               POD_NAME=$(hostname)
               POD_INDEX=$(echo $POD_NAME | awk -F "-" '{print $NF}')
-              cp /etc/keydb/configs/keydb-config-${POD_INDEX}.conf /etc/keydb/keydb.conf
+              REPLICATION_CONFIG="/etc/keydb/keydb-replica.conf"
+              echo "replication for $POD_NAME" > $REPLICATION_CONFIG
+              {{- range $index, $replica := .Values.replicas }}
+              if [ "$POD_INDEX" -eq "{{ $index }}" ]; then
+                {{- range $replica }}
+                echo "replicaof {{ . }}" >> $REPLICATION_CONFIG
+                {{- end }}
+              fi
+              {{- end }}
+              cat /etc/keydb/keydb.conf /etc/keydb/keydb-replica.conf > /etc/keydb/final-keydb.conf
           volumeMounts:
             - name: config-volume
-              mountPath: /etc/keydb/configs
+              mountPath: /etc/keydb
+            - name: data
+              mountPath: /data
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          command: ["keydb-server", "/etc/keydb/keydb.conf"]
+          command: ["keydb-server", "/etc/keydb/final-keydb.conf"]
           ports:
             - containerPort: 6379
           volumeMounts:
@@ -40,15 +51,8 @@ spec:
               mountPath: /data
       volumes:
         - name: config-volume
-          projected:
-            sources:
-              {{- range $index, $config := .Values.configs }}
-              - configMap:
-                  name: keydb-config-{{ $index }}
-                  items:
-                    - key: keydb.conf
-                      path: keydb-config-{{ $index }}.conf
-              {{- end }}
+          configMap:
+            name: keydb-config
         - name: data
           emptyDir: {}
   volumeClaimTemplates:
