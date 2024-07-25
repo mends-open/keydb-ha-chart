@@ -27,8 +27,6 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /etc/keydb/configs
-            - name: data
-              mountPath: /data
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
