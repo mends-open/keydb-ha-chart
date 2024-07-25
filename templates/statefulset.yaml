@@ -23,10 +23,10 @@ spec:
             - |
               POD_NAME=$(hostname)
               POD_INDEX=$(echo $POD_NAME | awk -F "-" '{print $NF}')
-              cp /etc/keydb/config/keydb-config-${POD_INDEX}.conf /etc/keydb/keydb.conf
+              cp /etc/keydb/configs/keydb-config-${POD_INDEX}.conf /etc/keydb/keydb.conf
           volumeMounts:
             - name: config-volume
-              mountPath: /etc/keydb/config
+              mountPath: /etc/keydb/configs
             - name: data
               mountPath: /data
       containers:
