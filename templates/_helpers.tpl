@@ -12,6 +12,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{- define "keydb.selectorLabels" -}}
-app.kubernetes.io/name: {{ include ".Release.Name" . }}
+app.kubernetes.io/name: {{ .Release.Name }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}

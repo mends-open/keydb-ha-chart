@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include ".Release.Name" . }}
+  name: {{ .Release.Name }}
   labels:
     {{- include "keydb.labels" . | nindent 4 }}
 spec:
-  serviceName: {{ include ".Release.Name" . }}-headless
+  serviceName: {{ .Release.Name }}-headless
   replicas: {{ .Values.nodes }}
   selector:
     matchLabels:
-      app: {{ include ".Release.Name" . }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ include ".Release.Name" . }}
+        app: {{ .Release.Name }}
     spec:
       containers:
         - name: keydb
@@ -30,7 +30,7 @@ spec:
       volumes:
         - name: utils
           secret:
-            secretName: {{ include ".Release.Name" . }}-utils
+            secretName: {{ .Release.Name }}-utils
         - name: data
           emptyDir: {}
   volumeClaimTemplates:
