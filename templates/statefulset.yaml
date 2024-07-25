@@ -18,7 +18,7 @@ spec:
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          command: ["/bin/sh", "/etc/keydb-utils/server.sh"]
+          command: ["/bin/sh", "/utils/server.sh"]
           ports:
             - containerPort: {{ .Values.service.port }}
           volumeMounts:
