@@ -1,7 +1,9 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: keydb-replicas
+  name: keydb-replica
+  labels:
+    app: keydb-replica
 spec:
   serviceName: keydb-service
   replicas: {{ .Values.replicaCount | int }}
@@ -13,8 +15,24 @@ spec:
       labels:
         app: keydb-replica
     spec:
+      initContainers:
+        - name: setup-replication
+          image: busybox
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              echo "Starting replication setup"
+              POD_NAME=$(hostname)
+              FULL_NAME="keydb-replica-${POD_NAME##*-}"
+              ALL_REPLICAS=$(for i in $(seq 0 $(( {{ .Values.replicaCount }} - 1 )) ); do if [ "$FULL_NAME" != "keydb-replica-$i" ]; then echo "keydb-replica-$i 6379"; fi; done)
+              echo $ALL_REPLICAS > /replicas/replica-hosts
+          volumeMounts:
+            - name: replicas
+              mountPath: /replicas
       containers:
-        - name: keydb-replica
+        - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
             - containerPort: 6379
@@ -24,18 +42,24 @@ spec:
             - name: config-volume
               mountPath: /etc/keydb/keydb.conf
               subPath: keydb.conf
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+            - name: replicas
+              mountPath: /replicas
           args:
-            - "keydb-server"
-            - "/etc/keydb/keydb.conf"
+            - "sh"
+            - "-c"
+            - |
+              keydb-server /etc/keydb/keydb.conf &
+              sleep 10
+              for host in $(cat /replicas/replica-hosts); do
+                keydb-cli --replicaof $host
+              done
+              wait
       volumes:
         - name: config-volume
           configMap:
             name: keydb-configmap
+        - name: replicas
+          emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: keydb-storage
