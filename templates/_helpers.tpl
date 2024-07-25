@@ -17,5 +17,5 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{- define "keydb.config.hash" -}}
-{{- sha256sum .Values.config | truncate 63 | trimSuffix "\n" -}}
+{{- sha256sum .Values.config -}}
 {{- end -}}
