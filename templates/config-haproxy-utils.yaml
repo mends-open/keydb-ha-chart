@@ -23,7 +23,7 @@ data:
 
     # Write the config text to a file
     cat <<EOF > /usr/local/etc/haproxy/haproxy.cfg
-    {{ .Values.haproxy.configTemplate }}
+    {{ .Values.haproxy.configTemplate | nindent 4 }}
     ${replicas}
     EOF
 
