@@ -22,7 +22,7 @@ data:
     done
 
     cat <<EOF > /tmp/haproxy.cfg
-    {{ .Values.haproxy.configTemplate }}
+    {{ .Values.haproxy.configTemplate | nindent 4 }}
     ${replicas}
     EOF
 
