@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-haproxy-utils
+  labels:
+    {{- include "keydb.labels" . | nindent 4 }}
+data:
+  haproxy-config.sh: |
+    #!/bin/sh
+    set -euxo pipefail
+
+    host="$(hostname)"
+    replicas=""
+    node=0
+    while [ $node -lt {{ .Values.keydb.nodes | int }} ]; do
+      replicas="${replicas}    server keydb-${node} keydb-${node}.{{ include "keydb.fullname" . }}-headless:6379 check\n"
+      node=$((node + 1))
+    done
+
+    # Write the config text to a file
+    cat <<EOF > /usr/local/etc/haproxy/haproxy.cfg
+    {{ .Values.haproxy.configTemplate }}
+    ${replicas}
+    EOF
+
+    exec haproxy -f /usr/local/etc/haproxy/haproxy.cfg

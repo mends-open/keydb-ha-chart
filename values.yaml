@@ -1,6 +1,6 @@
 image:
   repository: eqalpha/keydb
-  tag: "alpine_x86_64_v6.3.4"
+  tag: alpine_x86_64_v6.3.4
   pullPolicy: IfNotPresent
 
 service:
@@ -30,3 +30,27 @@ resources:
   limits:
     cpu: "250m"
     memory: "256Mi"
+
+haproxy:
+  image:
+    repository: eqalpha/keydb
+    tag: alpine_x86_64_v6.3.4
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  configTemplate: |
+    global
+        log stdout format raw local0
+
+    defaults
+        log global
+        mode tcp
+        option tcplog
+        timeout connect 5s
+        timeout client 30s
+        timeout server 30s
+
+    frontend fe_keydb
+        bind *:6379
+        default_backend be_keydb
+
+    backend be_keydb

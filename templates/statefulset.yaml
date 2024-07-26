@@ -20,6 +20,7 @@ spec:
       containers:
         - name: keydb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          pullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh", "/utils/server.sh"]
           ports:
             - containerPort: {{ .Values.service.port }}

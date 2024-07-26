@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-haproxy
+  labels:
+    app: {{ .Release.Name }}-haproxy
+spec:
+  replicas: {{ .Values.haproxy.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-haproxy
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-haproxy
+    spec:
+      containers:
+        - name: haproxy
+          image: "{{ .Values.haproxy.image.repository }}:{{ .Values.haproxy.image.repository }}"
+          pullPolicy: {{ .Values.haproxy.image.pullPolicy }}
+          command: ["/bin/sh", "/utils/haproxy-config.sh"]
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: utils
+              mountPath: /utils
+              readOnly: true
+      volumes:
+        - name: utils
+          configMap:
+            name: {{ .Release.Name }}-haproxy-utils
