@@ -12,8 +12,12 @@ data:
     host="$(hostname)"
     replicas=""
     node=0
-    while [ $node -lt {{ .Values.keydb.nodes | int }} ]; do
-      replicas="${replicas}    server keydb-${node} keydb-${node}.{{ include "keydb.fullname" . }}-headless:6379 check\n"
+    while [ $node -lt {{ .Values.replicas | int }} ]; do
+      if [ $node -eq 0 ]; then
+        replicas="${replicas}    server {{ .Release.Name }}-${node}.{{ .Release.Name }}-headless:{{ .Values.service.port }} check\n"
+      else
+        replicas="${replicas}    server {{ .Release.Name }}-${node}.{{ .Release.Name }}-headless:{{ .Values.service.port }} check backup\n"
+      fi
       node=$((node + 1))
     done
 
