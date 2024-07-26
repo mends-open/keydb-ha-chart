@@ -33,10 +33,10 @@ resources:
 
 haproxy:
   image:
-    repository: eqalpha/keydb
-    tag: alpine_x86_64_v6.3.4
+    image: haproxy
+    tag: latest
     pullPolicy: IfNotPresent
-  replicaCount: 2
+  replicas: 2
   configTemplate: |
     global
         log stdout format raw local0
