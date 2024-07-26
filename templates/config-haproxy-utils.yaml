@@ -21,10 +21,9 @@ data:
       node=$((node + 1))
     done
 
-    # Write the config text to a file
-    cat <<EOF > /usr/local/etc/haproxy/haproxy.cfg
-    {{ .Values.haproxy.configTemplate | nindent 4 }}
+    cat <<EOF > /tmp/haproxy.cfg
+    {{ .Values.haproxy.configTemplate }}
     ${replicas}
     EOF
 
-    exec haproxy -f /usr/local/etc/haproxy/haproxy.cfg
+    exec haproxy -f /tmp/haproxy.cfg
