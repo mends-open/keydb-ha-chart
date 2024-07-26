@@ -17,7 +17,7 @@ spec:
       containers:
         - name: haproxy
           image: "{{ .Values.haproxy.image }}:{{ .Values.haproxy.tag }}"
-          pullPolicy: {{ .Values.haproxy.image.pullPolicy }}
+          pullPolicy: {{ .Values.haproxy.pullPolicy }}
           command: ["/bin/sh", "/utils/haproxy-config.sh"]
           ports:
             - containerPort: 6379
